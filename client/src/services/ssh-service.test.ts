@@ -1,5 +1,5 @@
 import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
-import {connectToSSH} from './sshService';
+import {connectToSSH} from './ssh-service';
 
 global.fetch = vi.fn();
 

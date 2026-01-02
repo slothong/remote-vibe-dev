@@ -1,7 +1,7 @@
 import {describe, it, expect, vi} from 'vitest';
 import {render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {SSHConnectionForm} from './SSHConnectionForm';
+import {SSHConnectionForm} from './ssh-connection-form';
 
 describe('SSH 연결 폼을 렌더링할 수 있다', () => {
   it('should render SSH connection form', () => {

@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import './App.css';
-import {SSHConnectionForm} from './components/SSHConnectionForm';
-import {connectToSSH} from './services/sshService';
+import {SSHConnectionForm} from './components/ssh-connection-form';
+import {connectToSSH} from './services/ssh-service';
 
 function App() {
   const [connected, setConnected] = useState(false);
