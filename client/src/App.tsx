@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import './App.css';
 import {SSHConnectionForm} from './components/ssh-connection-form';
+import {Terminal} from './components/terminal';
 import {connectToSSH} from './services/ssh-service';
 
 function App() {
@@ -34,9 +35,12 @@ function App() {
 
   if (connected) {
     return (
-      <div>
-        <h1>Connected to SSH</h1>
-        <p>Session ID: {sessionId}</p>
+      <div style={{height: '100vh', display: 'flex', flexDirection: 'column'}}>
+        <div style={{padding: '20px'}}>
+          <h1>Connected to SSH</h1>
+          <p>Session ID: {sessionId}</p>
+        </div>
+        <Terminal sessionId={sessionId || undefined} />
       </div>
     );
   }
