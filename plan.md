@@ -34,14 +34,14 @@
 - [x] 터미널을 화면 하단에 배치한다
 - [x] 터미널 스크롤을 지원한다
 - [x] 터미널 크기 조절을 지원한다 (FitAddon)
-- [ ] SSH 셸 세션을 시작할 수 있다
-- [ ] SSH 셸 I/O를 WebSocket으로 브릿징한다
-- [ ] 서버에서 WebSocket 서버를 시작한다
-- [ ] 터미널 초기화 시 WebSocket에 연결한다
+- [x] SSH 셸 세션을 시작할 수 있다
+- [x] SSH 셸 I/O를 WebSocket으로 브릿징한다
+- [x] 서버에서 WebSocket 서버를 시작한다
+- [x] 터미널 초기화 시 WebSocket에 연결한다
+- [x] 터미널 입력을 WebSocket으로 전송한다
+- [x] WebSocket 메시지를 터미널에 출력한다
+- [x] 터미널에서 키보드 입력을 처리한다
 - [ ] WebSocket 연결 성공 시 claude 명령을 실행한다
-- [ ] 터미널 입력을 WebSocket으로 전송한다
-- [ ] WebSocket 메시지를 터미널에 출력한다
-- [ ] 터미널에서 키보드 입력을 처리한다
 
 ## plan.md 파싱 및 관리
 - [ ] plan.md 파일을 읽을 수 있다
