@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "start": "node build/src/index.js",
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
     "test": "vitest",
     "lint": "gts lint",
     "clean": "gts clean",
@@ -14,13 +17,20 @@
     "posttest": "npm run lint"
   },
   "dependencies": {
-    "ssh2": "^1.17.0"
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "ssh2": "^1.17.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
-    "typescript": "^5.6.3",
-    "vitest": "^2.1.8",
-    "gts": "^7.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^22.7.5",
-    "@types/ssh2": "^1.15.1"
+    "@types/ssh2": "^1.15.1",
+    "@types/ws": "^8.5.13",
+    "gts": "^7.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
   }
 }
