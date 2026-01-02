@@ -21,7 +21,6 @@ export class SSHSessionManager {
 
   async connect(config: SSHConfig): Promise<SessionConnectionResult> {
     const result: SSHConnectionResult = await connectToSSH(config);
-    console.log(result);
 
     if (!result.success || !result.client) {
       return {
