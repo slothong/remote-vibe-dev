@@ -3,12 +3,19 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "build",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["vite/client", "@testing-library/jest-dom", "vitest/globals"]
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "test/**/*.ts",
-    "vite.config.ts"
+    "vite.config.ts",
+    "vitest.config.ts"
   ]
 }
