@@ -8,15 +8,15 @@ export async function connectToSSH(page: Page) {
   const username = process.env.TEST_SSH_USER || 'testuser';
   const password = process.env.TEST_SSH_PASS || 'testpass';
 
-  await page.getByLabel('Host').fill(host);
+  await page.getByLabel('Host Address').fill(host);
   await page.getByLabel('Port').fill(port);
-  await page.getByLabel('Username').fill(username);
+  await page.getByRole('textbox', {name: 'Username'}).fill(username);
 
   // Use more specific selector to avoid ambiguity with Password radio button
   await page.locator('input[type="password"]#password').fill(password);
 
-  await page.getByRole('button', {name: 'Connect'}).click();
-  await expect(page.getByText('Connected to SSH')).toBeVisible({
+  await page.getByRole('button', {name: /connect/i}).click();
+  await expect(page.getByText('SSH Remote Development')).toBeVisible({
     timeout: 10000,
   });
 }

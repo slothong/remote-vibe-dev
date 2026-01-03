@@ -6,11 +6,11 @@ test.describe('SSH Connection Flow', () => {
 
     // 연결 폼이 표시되는지 확인
     await expect(page.getByText('SSH Connection')).toBeVisible();
-    await expect(page.getByLabel('Host')).toBeVisible();
+    await expect(page.getByLabel('Host Address')).toBeVisible();
     await expect(page.getByLabel('Port')).toBeVisible();
-    await expect(page.getByLabel('Username')).toBeVisible();
-    await expect(page.getByLabel('Password')).toBeVisible();
-    await expect(page.getByRole('button', {name: 'Connect'})).toBeVisible();
+    await expect(page.getByRole('textbox', {name: 'Username'})).toBeVisible();
+    await expect(page.locator('input[type="password"]#password')).toBeVisible();
+    await expect(page.getByRole('button', {name: /connect/i})).toBeVisible();
   });
 
   test('should successfully connect to SSH server and show main UI', async ({
@@ -25,16 +25,16 @@ test.describe('SSH Connection Flow', () => {
     const password = process.env.TEST_SSH_PASS || 'testpass';
 
     // 연결 폼 입력
-    await page.getByLabel('Host').fill(host);
+    await page.getByLabel('Host Address').fill(host);
     await page.getByLabel('Port').fill(port);
-    await page.getByLabel('Username').fill(username);
+    await page.getByRole('textbox', {name: 'Username'}).fill(username);
     await page.locator('input[type="password"]#password').fill(password);
 
     // 연결 버튼 클릭
-    await page.getByRole('button', {name: 'Connect'}).click();
+    await page.getByRole('button', {name: /connect/i}).click();
 
-    // 메인 화면으로 전환되는지 확인 (Connected to SSH 텍스트 표시)
-    await expect(page.getByText('Connected to SSH')).toBeVisible({
+    // 메인 화면으로 전환되는지 확인 (SSH Remote Development 텍스트 표시)
+    await expect(page.getByText('SSH Remote Development')).toBeVisible({
       timeout: 10000,
     });
 
@@ -53,13 +53,13 @@ test.describe('SSH Connection Flow', () => {
     await page.goto('/');
 
     // 잘못된 인증 정보 입력
-    await page.getByLabel('Host').fill('localhost');
+    await page.getByLabel('Host Address').fill('localhost');
     await page.getByLabel('Port').fill('2222');
-    await page.getByLabel('Username').fill('wronguser');
-    await page.getByLabel('Password').fill('wrongpass');
+    await page.getByRole('textbox', {name: 'Username'}).fill('wronguser');
+    await page.locator('input[type="password"]#password').fill('wrongpass');
 
     // 연결 버튼 클릭
-    await page.getByRole('button', {name: 'Connect'}).click();
+    await page.getByRole('button', {name: /connect/i}).click();
 
     // 에러 메시지 표시 확인
     await expect(page.locator('[role="alert"]')).toBeVisible({timeout: 5000});
@@ -74,13 +74,13 @@ test.describe('SSH Connection Flow', () => {
     await page.goto('/');
 
     // 존재하지 않는 호스트 입력
-    await page.getByLabel('Host').fill('192.0.2.1'); // TEST-NET-1 (unreachable)
+    await page.getByLabel('Host Address').fill('192.0.2.1'); // TEST-NET-1 (unreachable)
     await page.getByLabel('Port').fill('2222');
-    await page.getByLabel('Username').fill('testuser');
-    await page.getByLabel('Password').fill('testpass');
+    await page.getByRole('textbox', {name: 'Username'}).fill('testuser');
+    await page.locator('input[type="password"]#password').fill('testpass');
 
     // 연결 버튼 클릭
-    await page.getByRole('button', {name: 'Connect'}).click();
+    await page.getByRole('button', {name: /connect/i}).click();
 
     // 타임아웃 에러 메시지 표시 확인
     await expect(page.locator('[role="alert"]')).toBeVisible({

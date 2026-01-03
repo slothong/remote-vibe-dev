@@ -87,9 +87,7 @@ test.describe('Checklist Component', () => {
 
     // 새 항목 입력 필드 찾기
     const addItemInput = section1.locator('.add-item-form input[type="text"]');
-    const addButton = section1.locator('.add-item-form button', {
-      hasText: 'Add',
-    });
+    const addButton = section1.locator('.add-item-form button');
 
     // 새 항목 추가
     await addItemInput.fill('New test task');
@@ -136,10 +134,10 @@ test.describe('Checklist Component', () => {
       .filter({hasText: 'Test Section 1'});
     const task1Item = section1.locator('.checklist-item').first();
 
-    // Go 버튼이 표시되는지 확인
+    // Go 버튼이 표시되는지 확인 (아이콘 버튼이므로 title 속성 확인)
     const goButton = task1Item.locator('button.go-button');
     await expect(goButton).toBeVisible();
-    await expect(goButton).toHaveText('Go');
+    await expect(goButton).toHaveAttribute('title', 'Execute this task');
   });
 
   test('should execute claude /go command when Go button is clicked', async ({

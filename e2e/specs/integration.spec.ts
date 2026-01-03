@@ -55,7 +55,7 @@ test.describe('Integration Tests', () => {
     await expect(page.getByText('Plan Checklist')).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.getByText('Connected to SSH')).toBeVisible();
+    await expect(page.getByText('SSH Remote Development')).toBeVisible();
   });
 
   test('should reflect checklist changes in plan.md', async ({page}) => {
@@ -96,12 +96,12 @@ test.describe('Integration Tests', () => {
     await page.goto('/');
 
     // 잘못된 호스트로 연결 시도
-    await page.getByLabel('Host').fill('invalid-host-12345');
+    await page.getByLabel('Host Address').fill('invalid-host-12345');
     await page.getByLabel('Port').fill('9999');
-    await page.getByLabel('Username').fill('testuser');
-    await page.getByLabel('Password').fill('testpass');
+    await page.getByRole('textbox', {name: 'Username'}).fill('testuser');
+    await page.locator('input[type="password"]#password').fill('testpass');
 
-    await page.getByRole('button', {name: 'Connect'}).click();
+    await page.getByRole('button', {name: /connect/i}).click();
 
     // 에러 메시지 표시 확인
     await expect(page.locator('[role="alert"]')).toBeVisible({
