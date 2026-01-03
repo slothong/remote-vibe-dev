@@ -51,11 +51,17 @@ export function Terminal({sessionId}: TerminalProps) {
             if (data.success) {
               term.writeln('Shell session started');
 
-              // Execute claude command automatically
+              // Execute claude command in remote-dev-workspace
               setTimeout(() => {
-                const claudeCommand = 'claude\n';
-                ws.send(claudeCommand);
-                term.writeln('$ claude');
+                // Change to remote-dev-workspace directory first
+                const cdCommand = 'cd remote-dev-workspace\n';
+                ws.send(cdCommand);
+
+                // Then execute claude command
+                setTimeout(() => {
+                  const claudeCommand = 'claude\n';
+                  ws.send(claudeCommand);
+                }, 200);
               }, 500);
             } else {
               term.writeln(`Error: ${data.error}`);
