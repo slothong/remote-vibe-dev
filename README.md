@@ -83,13 +83,12 @@ export WS_PORT=3001
 #### 개발 모드
 
 ```bash
+# 방법 1: 각 터미널에서 실행
 # 터미널 1: 서버 실행
-cd server
-npm run dev
+npm run dev:server
 
 # 터미널 2: 클라이언트 실행
-cd client
-npm run dev
+npm run dev:client
 ```
 
 - 클라이언트: http://localhost:5173
@@ -98,15 +97,55 @@ npm run dev
 
 #### 프로덕션 모드
 
+**Express 서버에서 클라이언트 정적 파일 서빙 (권장)**
+
 ```bash
-# 빌드
-npm run build --prefix client
-npm run build --prefix server
+# 1. 빌드
+npm run build
 
-# 서버 실행
-npm start --prefix server
+# 2. 프로덕션 서버 실행
+npm start
+```
 
-# 클라이언트는 정적 파일 서버로 서빙 (예: nginx, Apache)
+- 애플리케이션: http://localhost:3000
+- WebSocket: ws://localhost:3001
+
+프로덕션 모드에서는 Express 서버가 클라이언트 정적 파일을 자동으로 서빙합니다.
+
+**대안: Nginx로 분리 배포**
+
+nginx를 사용하여 정적 파일과 API를 분리할 수도 있습니다:
+
+```nginx
+server {
+    listen 80;
+    server_name example.com;
+
+    # 정적 파일 서빙
+    location / {
+        root /path/to/client/dist;
+        try_files $uri $uri/ /index.html;
+    }
+
+    # API 프록시
+    location /api {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # WebSocket 프록시
+    location /ws {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+    }
+}
 ```
 
 ## 사용법
@@ -222,6 +261,163 @@ npm run fix --prefix server
 ```bash
 npm run typecheck
 ```
+
+## 배포
+
+### 준비
+
+1. **의존성 설치**
+```bash
+npm install --prefix client
+npm install --prefix server
+```
+
+2. **환경 변수 설정**
+
+프로덕션 환경에 맞게 환경 변수를 설정합니다:
+
+```bash
+# 서버 포트 (선택사항)
+export PORT=3000
+export WS_PORT=3001
+
+# Node 환경
+export NODE_ENV=production
+```
+
+### 빌드 및 실행
+
+```bash
+# 1. 클라이언트와 서버 빌드
+npm run build
+
+# 2. 프로덕션 서버 시작
+npm start
+```
+
+서버가 시작되면:
+- 웹 애플리케이션: http://localhost:3000
+- WebSocket: ws://localhost:3001
+
+### 프로세스 관리
+
+**PM2 사용 (권장)**
+
+```bash
+# PM2 설치
+npm install -g pm2
+
+# 서버 시작
+cd server
+NODE_ENV=production pm2 start build/src/index.js --name remote-dev
+
+# 상태 확인
+pm2 status
+
+# 로그 확인
+pm2 logs remote-dev
+
+# 재시작
+pm2 restart remote-dev
+
+# 중지
+pm2 stop remote-dev
+```
+
+**systemd 사용**
+
+`/etc/systemd/system/remote-dev.service` 파일 생성:
+
+```ini
+[Unit]
+Description=Remote Dev Server
+After=network.target
+
+[Service]
+Type=simple
+User=your-user
+WorkingDirectory=/path/to/remote-dev/server
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=WS_PORT=3001
+ExecStart=/usr/bin/node build/src/index.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+서비스 시작:
+```bash
+sudo systemctl enable remote-dev
+sudo systemctl start remote-dev
+sudo systemctl status remote-dev
+```
+
+### Docker 배포
+
+`Dockerfile` 생성:
+
+```dockerfile
+# Build stage
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY client/package*.json ./client/
+COPY server/package*.json ./server/
+
+# Install dependencies
+RUN npm install --prefix client
+RUN npm install --prefix server
+
+# Copy source code
+COPY client ./client
+COPY server ./server
+
+# Build
+RUN npm run build --prefix client
+RUN npm run build --prefix server
+
+# Production stage
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy built files
+COPY --from=builder /app/client/dist ./client/dist
+COPY --from=builder /app/server/build ./server/build
+COPY --from=builder /app/server/package*.json ./server/
+
+# Install production dependencies only
+RUN cd server && npm ci --only=production
+
+EXPOSE 3000 3001
+
+ENV NODE_ENV=production
+
+CMD ["node", "server/build/src/index.js"]
+```
+
+빌드 및 실행:
+```bash
+docker build -t remote-dev .
+docker run -p 3000:3000 -p 3001:3001 remote-dev
+```
+
+### 보안 고려사항
+
+프로덕션 배포 시 다음 사항을 고려하세요:
+
+1. **HTTPS 사용**: Let's Encrypt 등으로 SSL 인증서 설정
+2. **WebSocket 보안**: WSS(WebSocket Secure) 사용
+3. **방화벽 설정**: 필요한 포트만 개방
+4. **환경 변수**: 민감한 정보는 환경 변수로 관리
+5. **인증/인가**: 프로덕션에서는 적절한 인증 메커니즘 구현
+6. **Rate Limiting**: API 엔드포인트에 rate limiting 적용
+7. **로깅**: 적절한 로깅 및 모니터링 설정
 
 ## 라이선스
 
