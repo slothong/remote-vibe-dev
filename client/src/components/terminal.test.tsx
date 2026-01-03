@@ -44,10 +44,10 @@ describe('터미널 컴포넌트를 렌더링할 수 있다', () => {
 });
 
 describe('터미널을 화면 하단에 배치한다', () => {
-  it('should render terminal at the bottom', () => {
+  it('should have full width and fixed height', () => {
     render(<Terminal />);
 
     const terminalContainer = screen.getByTestId('terminal-container');
-    expect(terminalContainer).toHaveStyle({position: 'fixed', bottom: '0'});
+    expect(terminalContainer).toHaveStyle({width: '100%', height: '300px'});
   });
 });

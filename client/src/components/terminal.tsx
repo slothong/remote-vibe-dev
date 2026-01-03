@@ -50,6 +50,13 @@ export function Terminal({sessionId}: TerminalProps) {
           .then((data: {success: boolean; error?: string}) => {
             if (data.success) {
               term.writeln('Shell session started');
+
+              // Execute claude command automatically
+              setTimeout(() => {
+                const claudeCommand = 'claude\n';
+                ws.send(claudeCommand);
+                term.writeln('$ claude');
+              }, 500);
             } else {
               term.writeln(`Error: ${data.error}`);
             }

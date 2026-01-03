@@ -41,7 +41,7 @@
 - [x] 터미널 입력을 WebSocket으로 전송한다
 - [x] WebSocket 메시지를 터미널에 출력한다
 - [x] 터미널에서 키보드 입력을 처리한다
-- [ ] WebSocket 연결 성공 시 claude 명령을 실행한다
+- [x] WebSocket 연결 성공 시 claude 명령을 실행한다
 
 ## plan.md 파싱 및 관리
 - [ ] plan.md 파일을 읽을 수 있다
