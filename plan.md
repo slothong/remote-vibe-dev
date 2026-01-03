@@ -73,33 +73,33 @@
 
 
 ## E2E 테스트 환경 구성
-- [ ] Playwright 설치 및 설정
-- [ ] playwright.config.ts 파일 생성
-- [ ] E2E 테스트 디렉토리 구조 생성 (e2e/fixtures, e2e/specs)
-- [ ] Mock SSH 서버 구현 (e2e/fixtures/ssh-server.ts)
-- [ ] 테스트용 SSH 키 생성
-- [ ] Global setup/teardown 스크립트 작성
-- [ ] 테스트용 plan.md fixture 생성
-- [ ] webServer 설정으로 client/server 자동 시작
-- [ ] package.json에 E2E 테스트 스크립트 추가
+- [x] Playwright 설치 및 설정
+- [x] playwright.config.ts 파일 생성
+- [x] E2E 테스트 디렉토리 구조 생성 (e2e/fixtures, e2e/specs)
+- [x] Mock SSH 서버 구현 (e2e/fixtures/ssh-server.ts)
+- [x] 테스트용 SSH 키 생성
+- [x] Global setup/teardown 스크립트 작성
+- [x] 테스트용 plan.md fixture 생성
+- [x] webServer 설정으로 client/server 자동 시작
+- [x] package.json에 E2E 테스트 스크립트 추가
 
 ## E2E 테스트 시나리오 구현
-- [ ] SSH 연결 플로우 테스트 작성
-- [ ] 연결 폼 입력 테스트
-- [ ] 연결 성공 시 메인 화면 전환 확인
-- [ ] 체크리스트 컴포넌트 렌더링 확인
-- [ ] 터미널 컴포넌트 렌더링 확인
-- [ ] 체크리스트 항목 추가 테스트
-- [ ] 체크리스트 항목 체크/언체크 테스트
-- [ ] 체크리스트 항목 삭제 테스트
-- [ ] Go 버튼 클릭 시 터미널 명령 실행 테스트
-- [ ] WebSocket 메시지 송수신 테스트
-- [ ] plan.md 변경 사항 반영 테스트
-- [ ] 에러 처리 및 엣지 케이스 테스트
+- [x] SSH 연결 플로우 테스트 작성
+- [x] 연결 폼 입력 테스트
+- [x] 연결 성공 시 메인 화면 전환 확인
+- [x] 체크리스트 컴포넌트 렌더링 확인
+- [x] 터미널 컴포넌트 렌더링 확인
+- [x] 체크리스트 항목 추가 테스트
+- [x] 체크리스트 항목 체크/언체크 테스트
+- [x] 체크리스트 항목 삭제 테스트
+- [x] Go 버튼 클릭 시 터미널 명령 실행 테스트
+- [x] WebSocket 메시지 송수신 테스트
+- [x] plan.md 변경 사항 반영 테스트
+- [x] 에러 처리 및 엣지 케이스 테스트
 
 ## 통합 테스트
-- [ ] 시작 화면에서 SSH 연결 후 메인 화면으로 전환된다
-- [ ] 메인 화면에서 체크리스트와 터미널이 동시에 표시된다
-- [ ] 터미널에서 명령 실행 결과가 정상적으로 표시된다
-- [ ] 체크리스트 항목 변경이 plan.md에 반영된다
-- [ ] plan.md 파일 변경이 체크리스트에 반영된다
+- [x] 시작 화면에서 SSH 연결 후 메인 화면으로 전환된다
+- [x] 메인 화면에서 체크리스트와 터미널이 동시에 표시된다
+- [x] 터미널에서 명령 실행 결과가 정상적으로 표시된다
+- [x] 체크리스트 항목 변경이 plan.md에 반영된다
+- [x] plan.md 파일 변경이 체크리스트에 반영된다

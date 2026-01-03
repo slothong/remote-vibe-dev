@@ -1,0 +1,6 @@
+# Test specs directory for E2E tests
+# This directory will contain:
+# - ssh-connection.spec.ts: SSH connection flow tests
+# - checklist-crud.spec.ts: Checklist CRUD tests
+# - terminal-interaction.spec.ts: Terminal interaction tests
+# - integration.spec.ts: Integration tests

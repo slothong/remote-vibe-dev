@@ -1,0 +1,5 @@
+# Fixtures directory for E2E tests
+# This directory will contain:
+# - ssh-server.ts: Mock SSH server implementation
+# - test_rsa: SSH test keys
+# - test_plan.md: Test plan file

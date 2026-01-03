@@ -103,10 +103,7 @@ export function Checklist({sessionId}: ChecklistProps) {
     ws.send(command);
   };
 
-  const handleDeleteClick = async (
-    sectionTitle: string,
-    itemIndex: number,
-  ) => {
+  const handleDeleteClick = async (sectionTitle: string, itemIndex: number) => {
     if (!sessionId) return;
 
     try {
@@ -230,7 +227,11 @@ export function Checklist({sessionId}: ChecklistProps) {
                   type="checkbox"
                   checked={item.checked}
                   onChange={() => {
-                    void handleCheckToggle(section.title, itemIndex, item.checked);
+                    void handleCheckToggle(
+                      section.title,
+                      itemIndex,
+                      item.checked,
+                    );
                   }}
                 />
                 <span className={item.checked ? 'checked' : ''}>
