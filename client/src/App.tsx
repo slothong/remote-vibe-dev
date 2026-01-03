@@ -41,7 +41,8 @@ function App() {
             <div>
               <h1 className="text-2xl font-bold">SSH Remote Development</h1>
               <p className="text-blue-100 text-sm mt-1">
-                Connected • Session: <span className="font-mono text-xs">{sessionId}</span>
+                Connected • Session:{' '}
+                <span className="font-mono text-xs">{sessionId}</span>
               </p>
             </div>
             <div className="flex items-center gap-2">
