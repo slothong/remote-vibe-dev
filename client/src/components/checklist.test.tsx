@@ -194,7 +194,9 @@ describe('각 항목에 go 버튼을 표시한다', () => {
     render(<Checklist sessionId="test-session" />);
 
     await waitFor(() => {
-      expect(screen.getByText('Go')).toBeDefined();
+      const goButton = screen.getByTitle('Execute this task');
+      expect(goButton).toBeDefined();
+      expect(goButton.className).toContain('go-button');
     });
   });
 });
@@ -224,7 +226,9 @@ describe('각 항목에 삭제 버튼을 표시한다', () => {
     render(<Checklist sessionId="test-session" />);
 
     await waitFor(() => {
-      expect(screen.getByText('Delete')).toBeDefined();
+      const deleteButton = screen.getByTitle('Delete this task');
+      expect(deleteButton).toBeDefined();
+      expect(deleteButton.className).toContain('delete-button');
     });
   });
 });
@@ -254,8 +258,9 @@ describe('각 섹션에 항목 추가 폼을 표시한다', () => {
     render(<Checklist sessionId="test-session" />);
 
     await waitFor(() => {
-      expect(screen.getByPlaceholderText('Add new item...')).toBeDefined();
-      expect(screen.getByText('Add')).toBeDefined();
+      expect(screen.getByPlaceholderText('Add new task...')).toBeDefined();
+      const addButton = document.querySelector('.add-item-form button');
+      expect(addButton).toBeDefined();
     });
   });
 });

@@ -35,16 +35,28 @@ function App() {
 
   if (connected) {
     return (
-      <div className="h-screen flex flex-col">
-        <div className="p-5">
-          <h1 className="text-2xl font-bold">Connected to SSH</h1>
-          <p className="text-gray-600">Session ID: {sessionId}</p>
+      <div className="h-screen flex flex-col bg-gray-50">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-6 py-4 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">SSH Remote Development</h1>
+              <p className="text-blue-100 text-sm mt-1">
+                Connected • Session: <span className="font-mono text-xs">{sessionId}</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium">Active</span>
+            </div>
+          </div>
         </div>
         <div className="flex flex-1 overflow-hidden">
-          <div className="w-96 p-5 border-r border-gray-300 overflow-y-auto">
-            <Checklist sessionId={sessionId || undefined} />
+          <div className="w-96 bg-white border-r border-gray-200 overflow-y-auto shadow-sm">
+            <div className="p-6">
+              <Checklist sessionId={sessionId || undefined} />
+            </div>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 bg-gray-900">
             <Terminal sessionId={sessionId || undefined} />
           </div>
         </div>
@@ -53,7 +65,7 @@ function App() {
   }
 
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
       <SSHConnectionForm onConnect={handleConnect} onSuccess={handleSuccess} />
     </div>
   );

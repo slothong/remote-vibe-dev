@@ -13,9 +13,9 @@ describe('SSH 연결 폼을 렌더링할 수 있다', () => {
   it('should render all form fields', () => {
     render(<SSHConnectionForm />);
 
-    expect(screen.getByLabelText(/host/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/host address/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/port/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^username$/i)).toBeInTheDocument();
   });
 
   it('should render connect button', () => {
@@ -36,10 +36,10 @@ describe('인증 방법 선택 (key/password)을 표시한다', () => {
     render(<SSHConnectionForm />);
 
     expect(
-      screen.getByRole('radio', {name: /using credentials/i}),
+      screen.getByRole('radio', {name: /password authentication/i}),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('radio', {name: /using ssh key/i}),
+      screen.getByRole('radio', {name: /ssh key authentication/i}),
     ).toBeInTheDocument();
   });
 });
@@ -67,7 +67,7 @@ describe('password 입력 필드를 표시한다', () => {
     const user = userEvent.setup();
     render(<SSHConnectionForm />);
 
-    const keyRadio = screen.getByRole('radio', {name: /using ssh key/i});
+    const keyRadio = screen.getByRole('radio', {name: /ssh key authentication/i});
     await user.click(keyRadio);
 
     const passwordInput = screen.queryByLabelText(/^password$/i, {
@@ -81,7 +81,9 @@ describe('SSH key 파일 선택 기능을 표시한다', () => {
   it('should not show SSH key field by default', () => {
     render(<SSHConnectionForm />);
 
-    const keyFileInput = screen.queryByLabelText(/private key file/i);
+    const keyFileInput = screen.queryByLabelText(/private key file/i, {
+      selector: 'input[type="file"]',
+    });
     expect(keyFileInput).not.toBeInTheDocument();
   });
 
@@ -89,10 +91,12 @@ describe('SSH key 파일 선택 기능을 표시한다', () => {
     const user = userEvent.setup();
     render(<SSHConnectionForm />);
 
-    const keyRadio = screen.getByRole('radio', {name: /using ssh key/i});
+    const keyRadio = screen.getByRole('radio', {name: /ssh key authentication/i});
     await user.click(keyRadio);
 
-    const keyFileInput = screen.getByLabelText(/private key file/i);
+    const keyFileInput = screen.getByLabelText(/private key file/i, {
+      selector: 'input[type="file"]',
+    });
     expect(keyFileInput).toBeInTheDocument();
     expect(keyFileInput).toHaveAttribute('type', 'file');
   });
@@ -101,17 +105,23 @@ describe('SSH key 파일 선택 기능을 표시한다', () => {
     const user = userEvent.setup();
     render(<SSHConnectionForm />);
 
-    const keyRadio = screen.getByRole('radio', {name: /using ssh key/i});
+    const keyRadio = screen.getByRole('radio', {name: /ssh key authentication/i});
     await user.click(keyRadio);
 
-    expect(screen.getByLabelText(/private key file/i)).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/private key file/i, {
+        selector: 'input[type="file"]',
+      }),
+    ).toBeInTheDocument();
 
     const passwordRadio = screen.getByRole('radio', {
-      name: /using credentials/i,
+      name: /password authentication/i,
     });
     await user.click(passwordRadio);
 
-    const keyFileInput = screen.queryByLabelText(/private key file/i);
+    const keyFileInput = screen.queryByLabelText(/private key file/i, {
+      selector: 'input[type="file"]',
+    });
     expect(keyFileInput).not.toBeInTheDocument();
   });
 });
@@ -122,9 +132,9 @@ describe('연결 버튼 클릭 시 SSH 연결을 시도한다', () => {
     const onConnect = vi.fn().mockResolvedValue({success: true});
     render(<SSHConnectionForm onConnect={onConnect} />);
 
-    await user.type(screen.getByLabelText(/host/i), 'example.com');
+    await user.type(screen.getByLabelText(/host address/i), 'example.com');
     await user.type(screen.getByLabelText(/port/i), '22');
-    await user.type(screen.getByLabelText(/username/i), 'testuser');
+    await user.type(screen.getByLabelText(/^username$/i), 'testuser');
     await user.type(
       screen.getByLabelText(/^password$/i, {
         selector: 'input[type="password"]',
@@ -163,9 +173,9 @@ describe('연결 성공 시 메인 화면으로 이동한다', () => {
     const onSuccess = vi.fn();
     render(<SSHConnectionForm onConnect={onConnect} onSuccess={onSuccess} />);
 
-    await user.type(screen.getByLabelText(/host/i), 'example.com');
+    await user.type(screen.getByLabelText(/host address/i), 'example.com');
     await user.type(screen.getByLabelText(/port/i), '22');
-    await user.type(screen.getByLabelText(/username/i), 'testuser');
+    await user.type(screen.getByLabelText(/^username$/i), 'testuser');
     await user.type(
       screen.getByLabelText(/^password$/i, {
         selector: 'input[type="password"]',
@@ -188,7 +198,7 @@ describe('연결 성공 시 메인 화면으로 이동한다', () => {
     const onSuccess = vi.fn();
     render(<SSHConnectionForm onConnect={onConnect} onSuccess={onSuccess} />);
 
-    await user.type(screen.getByLabelText(/host/i), 'example.com');
+    await user.type(screen.getByLabelText(/host address/i), 'example.com');
 
     const connectButton = screen.getByRole('button', {name: /connect/i});
     await user.click(connectButton);
@@ -207,7 +217,7 @@ describe('연결 실패 시 에러 메시지를 표시한다', () => {
       .mockResolvedValue({success: false, error: 'Connection failed'});
     render(<SSHConnectionForm onConnect={onConnect} />);
 
-    await user.type(screen.getByLabelText(/host/i), 'example.com');
+    await user.type(screen.getByLabelText(/host address/i), 'example.com');
 
     const connectButton = screen.getByRole('button', {name: /connect/i});
     await user.click(connectButton);
@@ -225,7 +235,7 @@ describe('연결 실패 시 에러 메시지를 표시한다', () => {
       .mockResolvedValueOnce({success: true});
     render(<SSHConnectionForm onConnect={onConnect} />);
 
-    await user.type(screen.getByLabelText(/host/i), 'example.com');
+    await user.type(screen.getByLabelText(/host address/i), 'example.com');
 
     const connectButton = screen.getByRole('button', {name: /connect/i});
     await user.click(connectButton);
@@ -245,7 +255,7 @@ describe('연결 실패 시 에러 메시지를 표시한다', () => {
     const onConnect = vi.fn().mockResolvedValue({success: false});
     render(<SSHConnectionForm onConnect={onConnect} />);
 
-    await user.type(screen.getByLabelText(/host/i), 'example.com');
+    await user.type(screen.getByLabelText(/host address/i), 'example.com');
 
     const connectButton = screen.getByRole('button', {name: /connect/i});
     await user.click(connectButton);

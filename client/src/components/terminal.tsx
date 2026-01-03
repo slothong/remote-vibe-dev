@@ -106,9 +106,19 @@ export function Terminal({sessionId}: TerminalProps) {
   return (
     <div
       data-testid="terminal-container"
-      className="terminal-container w-full h-full"
+      className="terminal-container w-full h-full bg-gray-900 flex flex-col"
     >
-      <div ref={terminalRef} className="w-full h-full" />
+      <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center gap-2">
+        <div className="flex gap-2">
+          <div className="w-3 h-3 rounded-full bg-red-500"></div>
+          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+        </div>
+        <div className="flex-1 text-center">
+          <span className="text-sm font-medium text-gray-300">Terminal</span>
+        </div>
+      </div>
+      <div ref={terminalRef} className="w-full h-full p-2" />
     </div>
   );
 }
