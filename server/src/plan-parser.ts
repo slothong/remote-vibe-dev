@@ -1,5 +1,5 @@
-import fs from 'fs/promises';
-import path from 'path';
+import type {Client} from 'ssh2';
+import {readRemoteFile, writeRemoteFile} from './ssh-file-operations';
 
 export interface PlanItem {
   text: string;
@@ -15,10 +15,27 @@ export interface ParsedPlan {
   sections: PlanSection[];
 }
 
-export async function readPlanFile(): Promise<string> {
-  const planPath = path.join(process.cwd(), '..', 'plan.md');
-  const content = await fs.readFile(planPath, 'utf-8');
-  return content;
+export interface PlanFileResult {
+  success: boolean;
+  content?: string;
+  error?: string;
+}
+
+export async function readPlanFile(client: Client): Promise<PlanFileResult> {
+  const planPath = 'remote-dev-workspace/plan.md';
+  const result = await readRemoteFile(client, planPath);
+
+  if (!result.success) {
+    return {
+      success: false,
+      error: result.error,
+    };
+  }
+
+  return {
+    success: true,
+    content: result.content,
+  };
 }
 
 export function parsePlan(content: string): ParsedPlan {
@@ -55,4 +72,132 @@ export function parsePlan(content: string): ParsedPlan {
   }
 
   return {sections};
+}
+
+export function updateCheckStatus(
+  content: string,
+  sectionTitle: string,
+  itemIndex: number,
+  checked: boolean,
+): string {
+  const lines = content.split('\n');
+  let currentSection: string | null = null;
+  let currentItemIndex = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Match section headers
+    const sectionMatch = line.match(/^##\s+(.+)$/);
+    if (sectionMatch) {
+      currentSection = sectionMatch[1];
+      currentItemIndex = 0;
+      continue;
+    }
+
+    // Match checkbox items
+    const itemMatch = line.match(/^-\s+\[([ x])\]\s+(.+)$/);
+    if (itemMatch && currentSection === sectionTitle) {
+      if (currentItemIndex === itemIndex) {
+        const checkMark = checked ? 'x' : ' ';
+        lines[i] = `- [${checkMark}] ${itemMatch[2]}`;
+        break;
+      }
+      currentItemIndex++;
+    }
+  }
+
+  return lines.join('\n');
+}
+
+export function addPlanItem(
+  content: string,
+  sectionTitle: string,
+  itemText: string,
+): string {
+  const lines = content.split('\n');
+  let currentSection: string | null = null;
+  let insertIndex = -1;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Match section headers
+    const sectionMatch = line.match(/^##\s+(.+)$/);
+    if (sectionMatch) {
+      if (currentSection === sectionTitle && insertIndex === -1) {
+        // We just finished the target section, insert before this line
+        insertIndex = i;
+        break;
+      }
+      currentSection = sectionMatch[1];
+      continue;
+    }
+
+    // If we're at the end of file and in the target section
+    if (i === lines.length - 1 && currentSection === sectionTitle) {
+      insertIndex = lines.length;
+    }
+  }
+
+  if (insertIndex !== -1) {
+    const newItem = `- [ ] ${itemText}`;
+    lines.splice(insertIndex, 0, newItem);
+  }
+
+  return lines.join('\n');
+}
+
+export function deletePlanItem(
+  content: string,
+  sectionTitle: string,
+  itemIndex: number,
+): string {
+  const lines = content.split('\n');
+  let currentSection: string | null = null;
+  let currentItemIndex = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Match section headers
+    const sectionMatch = line.match(/^##\s+(.+)$/);
+    if (sectionMatch) {
+      currentSection = sectionMatch[1];
+      currentItemIndex = 0;
+      continue;
+    }
+
+    // Match checkbox items
+    const itemMatch = line.match(/^-\s+\[([ x])\]\s+(.+)$/);
+    if (itemMatch && currentSection === sectionTitle) {
+      if (currentItemIndex === itemIndex) {
+        // Remove this line
+        lines.splice(i, 1);
+        break;
+      }
+      currentItemIndex++;
+    }
+  }
+
+  return lines.join('\n');
+}
+
+export async function writePlanFile(
+  client: Client,
+  content: string,
+): Promise<PlanFileResult> {
+  const planPath = 'remote-dev-workspace/plan.md';
+  const result = await writeRemoteFile(client, planPath, content);
+
+  if (!result.success) {
+    return {
+      success: false,
+      error: result.error,
+    };
+  }
+
+  return {
+    success: true,
+  };
 }

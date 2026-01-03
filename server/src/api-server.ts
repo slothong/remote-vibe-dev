@@ -5,7 +5,14 @@ import {SSHSessionManager} from './ssh-session';
 import {SSHWebSocketBridge} from './ssh-websocket-bridge';
 import type {WebSocketBridge} from './websocket-server';
 import type {SSHConfig} from './ssh-config';
-import {readPlanFile, parsePlan} from './plan-parser';
+import {
+  readPlanFile,
+  parsePlan,
+  updateCheckStatus,
+  writePlanFile,
+  addPlanItem,
+  deletePlanItem,
+} from './plan-parser';
 
 const sshManager = new SSHSessionManager();
 let sshWsBridge: SSHWebSocketBridge | null = null;
@@ -88,8 +95,35 @@ export function createAPIServer(
 
   app.get('/api/plan', async (req: Request, res: Response) => {
     try {
-      const content = await readPlanFile();
-      const parsed = parsePlan(content);
+      const sessionId = req.query.sessionId as string;
+
+      if (!sessionId) {
+        res.status(400).json({
+          success: false,
+          error: 'Session ID is required',
+        });
+        return;
+      }
+
+      const session = sshManager.getSession(sessionId);
+      if (!session) {
+        res.status(404).json({
+          success: false,
+          error: 'Session not found',
+        });
+        return;
+      }
+
+      const fileResult = await readPlanFile(session.client);
+      if (!fileResult.success) {
+        res.status(500).json({
+          success: false,
+          error: fileResult.error || 'Failed to read plan',
+        });
+        return;
+      }
+
+      const parsed = parsePlan(fileResult.content!);
 
       res.json({
         success: true,
@@ -99,6 +133,209 @@ export function createAPIServer(
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : 'Failed to read plan',
+      });
+    }
+  });
+
+  app.post('/api/plan/update-check', async (req: Request, res: Response) => {
+    try {
+      const {sessionId, sectionTitle, itemIndex, checked} = req.body;
+
+      if (!sessionId) {
+        res.status(400).json({
+          success: false,
+          error: 'Session ID is required',
+        });
+        return;
+      }
+
+      if (!sectionTitle || itemIndex === undefined || checked === undefined) {
+        res.status(400).json({
+          success: false,
+          error: 'Section title, item index, and checked status are required',
+        });
+        return;
+      }
+
+      const session = sshManager.getSession(sessionId);
+      if (!session) {
+        res.status(404).json({
+          success: false,
+          error: 'Session not found',
+        });
+        return;
+      }
+
+      // Read current plan
+      const fileResult = await readPlanFile(session.client);
+      if (!fileResult.success) {
+        res.status(500).json({
+          success: false,
+          error: fileResult.error || 'Failed to read plan',
+        });
+        return;
+      }
+
+      // Update check status
+      const updatedContent = updateCheckStatus(
+        fileResult.content!,
+        sectionTitle,
+        itemIndex,
+        checked,
+      );
+
+      // Write back to remote
+      const writeResult = await writePlanFile(session.client, updatedContent);
+      if (!writeResult.success) {
+        res.status(500).json({
+          success: false,
+          error: writeResult.error || 'Failed to write plan',
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : 'Failed to update check',
+      });
+    }
+  });
+
+  app.post('/api/plan/add-item', async (req: Request, res: Response) => {
+    try {
+      const {sessionId, sectionTitle, itemText} = req.body;
+
+      if (!sessionId) {
+        res.status(400).json({
+          success: false,
+          error: 'Session ID is required',
+        });
+        return;
+      }
+
+      if (!sectionTitle || !itemText) {
+        res.status(400).json({
+          success: false,
+          error: 'Section title and item text are required',
+        });
+        return;
+      }
+
+      const session = sshManager.getSession(sessionId);
+      if (!session) {
+        res.status(404).json({
+          success: false,
+          error: 'Session not found',
+        });
+        return;
+      }
+
+      // Read current plan
+      const fileResult = await readPlanFile(session.client);
+      if (!fileResult.success) {
+        res.status(500).json({
+          success: false,
+          error: fileResult.error || 'Failed to read plan',
+        });
+        return;
+      }
+
+      // Add new item
+      const updatedContent = addPlanItem(
+        fileResult.content!,
+        sectionTitle,
+        itemText,
+      );
+
+      // Write back to remote
+      const writeResult = await writePlanFile(session.client, updatedContent);
+      if (!writeResult.success) {
+        res.status(500).json({
+          success: false,
+          error: writeResult.error || 'Failed to write plan',
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to add item',
+      });
+    }
+  });
+
+  app.delete('/api/plan/delete-item', async (req: Request, res: Response) => {
+    try {
+      const {sessionId, sectionTitle, itemIndex} = req.body;
+
+      if (!sessionId) {
+        res.status(400).json({
+          success: false,
+          error: 'Session ID is required',
+        });
+        return;
+      }
+
+      if (!sectionTitle || itemIndex === undefined) {
+        res.status(400).json({
+          success: false,
+          error: 'Section title and item index are required',
+        });
+        return;
+      }
+
+      const session = sshManager.getSession(sessionId);
+      if (!session) {
+        res.status(404).json({
+          success: false,
+          error: 'Session not found',
+        });
+        return;
+      }
+
+      // Read current plan
+      const fileResult = await readPlanFile(session.client);
+      if (!fileResult.success) {
+        res.status(500).json({
+          success: false,
+          error: fileResult.error || 'Failed to read plan',
+        });
+        return;
+      }
+
+      // Delete item
+      const updatedContent = deletePlanItem(
+        fileResult.content!,
+        sectionTitle,
+        itemIndex,
+      );
+
+      // Write back to remote
+      const writeResult = await writePlanFile(session.client, updatedContent);
+      if (!writeResult.success) {
+        res.status(500).json({
+          success: false,
+          error: writeResult.error || 'Failed to write plan',
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete item',
       });
     }
   });
