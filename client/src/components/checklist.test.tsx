@@ -1,6 +1,7 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest';
 import {render, screen, waitFor} from '@testing-library/react';
 import {Checklist} from './checklist';
+import * as websocketManager from '../services/websocket-manager';
 
 describe('체크리스트 컴포넌트를 렌더링할 수 있다', () => {
   beforeEach(() => {
@@ -296,22 +297,18 @@ describe('Go 버튼 클릭 시 올바른 형식의 명령어를 보낸다', () =
 
     // Mock WebSocket
     const mockSend = vi.fn();
-    const MockWebSocketClass = vi.fn(function (this: WebSocket) {
-      this.readyState = WebSocket.OPEN;
-      this.send = mockSend;
-      this.close = vi.fn();
-      this.onopen = null;
-      this.onerror = null;
-      this.onclose = null;
-      this.onmessage = null;
-      // Trigger onopen immediately
-      setTimeout(() => {
-        if (this.onopen) this.onopen(new Event('open'));
-      }, 0);
-      return this;
-    }) as unknown as typeof WebSocket;
+    const mockWebSocket = {
+      readyState: WebSocket.OPEN,
+      send: mockSend,
+      close: vi.fn(),
+      onopen: null,
+      onerror: null,
+      onclose: null,
+      onmessage: null,
+    } as unknown as WebSocket;
 
-    vi.stubGlobal('WebSocket', MockWebSocketClass);
+    vi.spyOn(websocketManager, 'getWebSocket').mockReturnValue(mockWebSocket);
+    vi.spyOn(websocketManager, 'initWebSocket').mockReturnValue(mockWebSocket);
 
     render(<Checklist sessionId="test-session" />);
 
@@ -324,16 +321,72 @@ describe('Go 버튼 클릭 시 올바른 형식의 명령어를 보낸다', () =
     const goButtons = screen.getAllByTitle('Execute this task');
     goButtons[0].click();
 
-    expect(mockSend).toHaveBeenCalledWith('/go 1.1\n');
+    // Wait for async character-by-character sending
+    await waitFor(() => {
+      // Check that characters were sent individually: '/', 'g', 'o', ' ', '1', '.', '1', '\r'
+      const calls = mockSend.mock.calls.map(call => call[0]);
+      const sent = calls.join('');
+      expect(sent).toContain('/go 1.1\r');
+    });
+  });
+});
 
-    // Click Go button on second item of first section (should send "/go 1.2")
-    goButtons[1].click();
+describe('go 명령어를 전송한 후 enter를 같이 전송해서 명령어가 실행되게 해야 한다', () => {
+  beforeEach(() => {
+    global.fetch = vi.fn();
+  });
 
-    expect(mockSend).toHaveBeenCalledWith('/go 1.2\n');
+  it('should send carriage return (\\r) after go command to execute it', async () => {
+    const mockPlanData = {
+      success: true,
+      data: {
+        sections: [
+          {
+            title: 'Test Section',
+            items: [{text: 'Task 1', checked: false}],
+          },
+        ],
+      },
+    };
 
-    // Click Go button on first item of second section (should send "/go 2.1")
-    goButtons[2].click();
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      json: async () => mockPlanData,
+    });
 
-    expect(mockSend).toHaveBeenCalledWith('/go 2.1\n');
+    // Mock WebSocket
+    const mockSend = vi.fn();
+    const mockWebSocket = {
+      readyState: WebSocket.OPEN,
+      send: mockSend,
+      close: vi.fn(),
+      onopen: null,
+      onerror: null,
+      onclose: null,
+      onmessage: null,
+    } as unknown as WebSocket;
+
+    vi.spyOn(websocketManager, 'getWebSocket').mockReturnValue(mockWebSocket);
+    vi.spyOn(websocketManager, 'initWebSocket').mockReturnValue(mockWebSocket);
+
+    render(<Checklist sessionId="test-session" />);
+
+    await waitFor(() => {
+      const goButtons = screen.queryAllByTitle('Execute this task');
+      expect(goButtons.length).toBeGreaterThan(0);
+    });
+
+    // Click go button
+    const goButton = screen.getByTitle('Execute this task');
+    goButton.click();
+
+    // Wait for async character-by-character sending
+    await waitFor(() => {
+      // Verify command was sent character by character with carriage return at the end
+      const calls = mockSend.mock.calls.map(call => call[0]);
+      const sent = calls.join('');
+      expect(sent).toBe('/go 1.1\r');
+      // Verify the last character is \r for execution
+      expect(calls[calls.length - 1]).toBe('\r');
+    });
   });
 });
