@@ -1,5 +1,4 @@
 import {useState} from 'react';
-import './App.css';
 import {SSHConnectionForm} from './components/ssh-connection-form';
 import {Terminal} from './components/terminal';
 import {Checklist} from './components/checklist';
@@ -36,23 +35,16 @@ function App() {
 
   if (connected) {
     return (
-      <div style={{height: '100vh', display: 'flex', flexDirection: 'column'}}>
-        <div style={{padding: '20px'}}>
-          <h1>Connected to SSH</h1>
-          <p>Session ID: {sessionId}</p>
+      <div className="h-screen flex flex-col">
+        <div className="p-5">
+          <h1 className="text-2xl font-bold">Connected to SSH</h1>
+          <p className="text-gray-600">Session ID: {sessionId}</p>
         </div>
-        <div style={{display: 'flex', flex: 1, overflow: 'hidden'}}>
-          <div
-            style={{
-              width: '400px',
-              padding: '20px',
-              borderRight: '1px solid #ccc',
-              overflowY: 'auto',
-            }}
-          >
+        <div className="flex flex-1 overflow-hidden">
+          <div className="w-96 p-5 border-r border-gray-300 overflow-y-auto">
             <Checklist sessionId={sessionId || undefined} />
           </div>
-          <div style={{flex: 1}}>
+          <div className="flex-1">
             <Terminal sessionId={sessionId || undefined} />
           </div>
         </div>

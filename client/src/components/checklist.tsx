@@ -255,31 +255,31 @@ export function Checklist({sessionId}: ChecklistProps) {
   }, [sessionId]);
 
   if (loading) {
-    return <div className="checklist-loading">Loading plan...</div>;
+    return <div className="p-4 text-center text-gray-600">Loading plan...</div>;
   }
 
   if (error) {
-    return <div className="checklist-error">Error: {error}</div>;
+    return <div className="p-4 text-center text-red-600">Error: {error}</div>;
   }
 
   if (!plan) {
-    return <div className="checklist-empty">No plan data</div>;
+    return <div className="p-4 text-center text-gray-500">No plan data</div>;
   }
 
   return (
-    <div className="checklist-container" data-testid="checklist-container">
-      <h2>Plan Checklist</h2>
+    <div className="space-y-6" data-testid="checklist-container">
+      <h2 className="text-xl font-bold text-gray-800">Plan Checklist</h2>
       {plan.sections.map((section, sectionIndex) => (
         <div
           key={`section-${sectionIndex}-${section.title}`}
-          className="checklist-section"
+          className="checklist-section bg-gray-50 rounded-lg p-4"
         >
-          <h3>{section.title}</h3>
-          <ul className="checklist-items">
+          <h3 className="text-lg font-semibold text-gray-700 mb-3">{section.title}</h3>
+          <ul className="checklist-items space-y-2">
             {section.items.map((item, itemIndex) => (
               <li
                 key={`item-${sectionIndex}-${itemIndex}-${item.text}`}
-                className="checklist-item"
+                className="checklist-item flex items-center gap-2 p-2 bg-white rounded border border-gray-200"
               >
                 <input
                   type="checkbox"
@@ -291,18 +291,19 @@ export function Checklist({sessionId}: ChecklistProps) {
                       item.checked,
                     );
                   }}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                 />
-                <span className={item.checked ? 'checked' : ''}>
+                <span className={`flex-1 ${item.checked ? 'checked line-through text-gray-500' : 'text-gray-800'}`}>
                   {item.text}
                 </span>
                 <button
-                  className="go-button"
+                  className="go-button px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
                   onClick={() => handleGoClick(item.text)}
                 >
                   Go
                 </button>
                 <button
-                  className="delete-button"
+                  className="delete-button px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
                   onClick={() => {
                     void handleDeleteClick(section.title, itemIndex);
                   }}
@@ -312,7 +313,7 @@ export function Checklist({sessionId}: ChecklistProps) {
               </li>
             ))}
           </ul>
-          <div className="add-item-form">
+          <div className="add-item-form flex gap-2 mt-3">
             <input
               type="text"
               placeholder="Add new item..."
@@ -328,8 +329,12 @@ export function Checklist({sessionId}: ChecklistProps) {
                   void handleAddItem(section.title);
                 }
               }}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button onClick={() => void handleAddItem(section.title)}>
+            <button
+              onClick={() => void handleAddItem(section.title)}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+            >
               Add
             </button>
           </div>

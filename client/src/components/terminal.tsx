@@ -106,10 +106,9 @@ export function Terminal({sessionId}: TerminalProps) {
   return (
     <div
       data-testid="terminal-container"
-      className="terminal-container"
-      style={{width: '100%', height: '300px'}}
+      className="terminal-container w-full h-full"
     >
-      <div ref={terminalRef} style={{width: '100%', height: '100%'}} />
+      <div ref={terminalRef} className="w-full h-full" />
     </div>
   );
 }
