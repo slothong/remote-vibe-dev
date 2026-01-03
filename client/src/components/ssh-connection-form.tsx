@@ -75,7 +75,7 @@ export function SSHConnectionForm({
               checked={authMethod === 'password'}
               onChange={() => setAuthMethod('password')}
             />
-            <label htmlFor="auth-password">Password</label>
+            <label htmlFor="auth-password">Using credentials</label>
           </div>
           <div>
             <input
@@ -86,7 +86,7 @@ export function SSHConnectionForm({
               checked={authMethod === 'key'}
               onChange={() => setAuthMethod('key')}
             />
-            <label htmlFor="auth-key">Private Key</label>
+            <label htmlFor="auth-key">Using SSH key</label>
           </div>
         </fieldset>
         {authMethod === 'password' && (

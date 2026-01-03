@@ -11,9 +11,12 @@ test.describe('Terminal Component', () => {
     const terminal = page.locator('[data-testid="terminal-container"]');
     await expect(terminal).toBeVisible();
 
-    // xterm.js가 로드되었는지 확인
-    const xtermViewport = page.locator('.xterm-viewport, .xterm');
-    await expect(xtermViewport).toBeVisible({timeout: 5000});
+    // Wait for xterm to initialize and display content
+    await page.waitForTimeout(1000);
+
+    // xterm.js가 로드되고 컨텐츠가 표시되는지 확인
+    const terminalContent = await terminal.textContent();
+    expect(terminalContent).toContain('Connected to server');
   });
 
   test('should display connection message', async ({page}) => {
