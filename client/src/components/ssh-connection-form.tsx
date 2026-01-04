@@ -72,6 +72,9 @@ export function SSHConnectionForm({
             authMethod: data.authMethod,
           };
           localStorage.setItem('sshConnectionInfo', JSON.stringify(infoToSave));
+        } else {
+          // Remove saved connection info if checkbox is unchecked
+          localStorage.removeItem('sshConnectionInfo');
         }
         onSuccess?.();
       } else {

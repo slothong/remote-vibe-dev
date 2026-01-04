@@ -357,4 +357,36 @@ describe('연결 정보 기억하기', () => {
 
     expect(rememberCheckbox.checked).toBe(true);
   });
+
+  it('체크박스를 해제하고 연결 성공 시 로컬 스토리지의 연결 정보를 제거한다', async () => {
+    const user = userEvent.setup();
+    const onConnect = vi.fn().mockResolvedValue({success: true});
+    const savedInfo = {
+      host: 'saved.example.com',
+      port: 2222,
+      username: 'saveduser',
+      authMethod: 'password',
+    };
+    localStorage.setItem('sshConnectionInfo', JSON.stringify(savedInfo));
+
+    render(<SSHConnectionForm onConnect={onConnect} />);
+
+    // Verify saved info exists
+    expect(localStorage.getItem('sshConnectionInfo')).toBeTruthy();
+
+    // Uncheck the remember checkbox
+    const rememberCheckbox = screen.getByRole('checkbox', {
+      name: /remember connection info/i,
+    });
+    await user.click(rememberCheckbox);
+
+    await user.type(screen.getByLabelText(/host address/i), 'example.com');
+
+    const connectButton = screen.getByRole('button', {name: /connect/i});
+    await user.click(connectButton);
+
+    await vi.waitFor(() => {
+      expect(localStorage.getItem('sshConnectionInfo')).toBeNull();
+    });
+  });
 });
