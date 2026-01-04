@@ -50,7 +50,9 @@ test.describe('Checklist Component', () => {
     await expect(task3Checkbox).not.toBeChecked();
   });
 
-  test('should toggle checkbox status', async ({page}) => {
+  test('should not allow checkbox toggling (disabled state)', async ({
+    page,
+  }) => {
     // 대기
     await page.waitForTimeout(2000);
 
@@ -60,22 +62,19 @@ test.describe('Checklist Component', () => {
     const task1Item = section1.locator('.checklist-item').nth(0);
     const task1Checkbox = task1Item.locator('input[type="checkbox"]');
 
+    // 체크박스가 disabled 상태인지 확인
+    await expect(task1Checkbox).toBeDisabled();
+
     // 초기 상태 확인 (체크되지 않음)
-    await expect(task1Checkbox).not.toBeChecked();
+    const initialChecked = await task1Checkbox.isChecked();
 
-    // 체크박스 클릭
-    await task1Checkbox.click();
+    // 체크박스 클릭 시도 (disabled 상태이므로 실제로 변경되지 않음)
+    await task1Checkbox.click({force: true});
     await page.waitForTimeout(500);
 
-    // 체크된 상태 확인
-    await expect(task1Checkbox).toBeChecked();
-
-    // 다시 클릭하여 언체크
-    await task1Checkbox.click();
-    await page.waitForTimeout(500);
-
-    // 언체크된 상태 확인
-    await expect(task1Checkbox).not.toBeChecked();
+    // 상태가 변경되지 않았는지 확인
+    const afterClickChecked = await task1Checkbox.isChecked();
+    expect(afterClickChecked).toBe(initialChecked);
   });
 
   test('should add new checklist item', async ({page}) => {
@@ -187,14 +186,15 @@ test.describe('Checklist Component', () => {
       timeout: 5000,
     });
 
-    // 체크박스 토글 후 상태 변경 확인
+    // 새로 추가된 항목도 disabled 체크박스를 가지는지 확인
     const newTaskItem = section1
       .locator('.checklist-item')
       .filter({hasText: 'Auto-refresh test task'});
     const newTaskCheckbox = newTaskItem.locator('input[type="checkbox"]');
 
-    await newTaskCheckbox.click();
-    await page.waitForTimeout(500);
-    await expect(newTaskCheckbox).toBeChecked();
+    // 체크박스가 disabled 상태인지 확인
+    await expect(newTaskCheckbox).toBeDisabled();
+    // 초기 상태는 체크되지 않은 상태
+    await expect(newTaskCheckbox).not.toBeChecked();
   });
 });
