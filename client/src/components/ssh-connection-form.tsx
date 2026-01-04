@@ -1,4 +1,4 @@
-import {useState, type FormEvent} from 'react';
+import {useState, useEffect, type FormEvent} from 'react';
 
 interface SSHConnectionFormProps {
   onConnect?: (data: {
@@ -18,6 +18,28 @@ export function SSHConnectionForm({
 }: SSHConnectionFormProps) {
   const [authMethod, setAuthMethod] = useState<'password' | 'key'>('password');
   const [error, setError] = useState<string | null>(null);
+  const [savedInfo, setSavedInfo] = useState<{
+    host: string;
+    port: number;
+    username: string;
+    authMethod: 'password' | 'key';
+  } | null>(null);
+  const [rememberConnection, setRememberConnection] = useState(false);
+
+  useEffect(() => {
+    // Load saved connection info on component mount
+    const saved = localStorage.getItem('sshConnectionInfo');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setSavedInfo(parsed);
+        setAuthMethod(parsed.authMethod || 'password');
+        setRememberConnection(true);
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,6 +63,16 @@ export function SSHConnectionForm({
     if (onConnect) {
       const result = await onConnect(data);
       if (result.success) {
+        // Save connection info if checkbox is checked
+        if (rememberConnection) {
+          const infoToSave = {
+            host: data.host,
+            port: data.port,
+            username: data.username,
+            authMethod: data.authMethod,
+          };
+          localStorage.setItem('sshConnectionInfo', JSON.stringify(infoToSave));
+        }
         onSuccess?.();
       } else {
         setError(result.error || 'Failed to connect');
@@ -71,6 +103,7 @@ export function SSHConnectionForm({
                 type="text"
                 id="host"
                 name="host"
+                defaultValue={savedInfo?.host || ''}
                 placeholder="example.com"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
@@ -88,6 +121,7 @@ export function SSHConnectionForm({
                   type="number"
                   id="port"
                   name="port"
+                  defaultValue={savedInfo?.port || ''}
                   placeholder="22"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
@@ -104,6 +138,7 @@ export function SSHConnectionForm({
                   type="text"
                   id="username"
                   name="username"
+                  defaultValue={savedInfo?.username || ''}
                   placeholder="user"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
@@ -212,6 +247,23 @@ export function SSHConnectionForm({
               </div>
             </div>
           )}
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="rememberConnection"
+              name="rememberConnection"
+              checked={rememberConnection}
+              onChange={e => setRememberConnection(e.target.checked)}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label
+              htmlFor="rememberConnection"
+              className="text-sm text-gray-700 cursor-pointer"
+            >
+              Remember connection info
+            </label>
+          </div>
 
           <button
             type="submit"

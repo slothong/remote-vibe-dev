@@ -1,4 +1,4 @@
-import {describe, it, expect, vi} from 'vitest';
+import {describe, it, expect, vi, beforeEach} from 'vitest';
 import {render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {SSHConnectionForm} from './ssh-connection-form';
@@ -272,5 +272,89 @@ describe('연결 실패 시 에러 메시지를 표시한다', () => {
     // Should display a generic error
     const errorMessage = await screen.findByText(/failed to connect/i);
     expect(errorMessage).toBeInTheDocument();
+  });
+});
+
+describe('연결 정보 기억하기', () => {
+  beforeEach(() => {
+    // Clear localStorage before each test
+    localStorage.clear();
+  });
+
+  it('"연결 정보 기억하기" 체크박스를 렌더링한다', () => {
+    render(<SSHConnectionForm />);
+
+    const rememberCheckbox = screen.getByRole('checkbox', {
+      name: /remember connection info/i,
+    });
+    expect(rememberCheckbox).toBeInTheDocument();
+  });
+
+  it('체크박스 선택 후 연결 성공 시 연결 정보를 로컬 스토리지에 저장한다', async () => {
+    const user = userEvent.setup();
+    const onConnect = vi.fn().mockResolvedValue({success: true});
+    render(<SSHConnectionForm onConnect={onConnect} />);
+
+    await user.type(screen.getByLabelText(/host address/i), 'example.com');
+    await user.type(screen.getByLabelText(/port/i), '22');
+    await user.type(screen.getByLabelText(/^username$/i), 'testuser');
+
+    const rememberCheckbox = screen.getByRole('checkbox', {
+      name: /remember connection info/i,
+    });
+    await user.click(rememberCheckbox);
+
+    const connectButton = screen.getByRole('button', {name: /connect/i});
+    await user.click(connectButton);
+
+    await vi.waitFor(() => {
+      const saved = localStorage.getItem('sshConnectionInfo');
+      expect(saved).toBeTruthy();
+      const parsed = JSON.parse(saved!);
+      expect(parsed.host).toBe('example.com');
+      expect(parsed.port).toBe(22);
+      expect(parsed.username).toBe('testuser');
+      expect(parsed.password).toBeUndefined(); // 패스워드는 저장하지 않음
+    });
+  });
+
+  it('페이지 로드 시 저장된 연결 정보를 불러온다', () => {
+    const savedInfo = {
+      host: 'saved.example.com',
+      port: 2222,
+      username: 'saveduser',
+      authMethod: 'password',
+    };
+    localStorage.setItem('sshConnectionInfo', JSON.stringify(savedInfo));
+
+    render(<SSHConnectionForm />);
+
+    const hostInput = screen.getByLabelText(/host address/i) as HTMLInputElement;
+    const portInput = screen.getByLabelText(/port/i) as HTMLInputElement;
+    const usernameInput = screen.getByLabelText(
+      /^username$/i,
+    ) as HTMLInputElement;
+
+    expect(hostInput.value).toBe('saved.example.com');
+    expect(portInput.value).toBe('2222');
+    expect(usernameInput.value).toBe('saveduser');
+  });
+
+  it('로컬 스토리지에 연결 정보가 존재하면 "연결 정보 기억하기" 체크박스를 체크 상태로 초기화한다', () => {
+    const savedInfo = {
+      host: 'saved.example.com',
+      port: 2222,
+      username: 'saveduser',
+      authMethod: 'password',
+    };
+    localStorage.setItem('sshConnectionInfo', JSON.stringify(savedInfo));
+
+    render(<SSHConnectionForm />);
+
+    const rememberCheckbox = screen.getByRole('checkbox', {
+      name: /remember connection info/i,
+    }) as HTMLInputElement;
+
+    expect(rememberCheckbox.checked).toBe(true);
   });
 });
