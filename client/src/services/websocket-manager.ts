@@ -4,9 +4,17 @@ export function getWebSocket(): WebSocket | null {
   return wsInstance;
 }
 
+export function setWebSocket(ws: WebSocket | null): void {
+  wsInstance = ws;
+}
+
 export function initWebSocket(url: string): WebSocket {
-  if (wsInstance && wsInstance.readyState !== WebSocket.CLOSED) {
-    return wsInstance;
+  // Always close existing connection before creating new one
+  if (wsInstance) {
+    if (wsInstance.readyState === WebSocket.OPEN || wsInstance.readyState === WebSocket.CONNECTING) {
+      wsInstance.close();
+    }
+    wsInstance = null;
   }
 
   wsInstance = new WebSocket(url);
@@ -15,7 +23,9 @@ export function initWebSocket(url: string): WebSocket {
 
 export function closeWebSocket(): void {
   if (wsInstance) {
-    wsInstance.close();
+    if (wsInstance.readyState === WebSocket.OPEN || wsInstance.readyState === WebSocket.CONNECTING) {
+      wsInstance.close();
+    }
     wsInstance = null;
   }
 }

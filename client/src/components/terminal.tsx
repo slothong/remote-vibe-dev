@@ -3,7 +3,7 @@ import {Terminal as XTerm} from '@xterm/xterm';
 import {FitAddon} from '@xterm/addon-fit';
 import {Unicode11Addon} from '@xterm/addon-unicode11';
 import '@xterm/xterm/css/xterm.css';
-import {initWebSocket, closeWebSocket} from '../services/websocket-manager';
+import {initWebSocket, setWebSocket, closeWebSocket} from '../services/websocket-manager';
 
 interface TerminalProps {
   sessionId?: string;
@@ -15,7 +15,7 @@ export function Terminal({sessionId}: TerminalProps) {
   const fitAddonRef = useRef<FitAddon | null>(null);
 
   useEffect(() => {
-    if (!terminalRef.current) return;
+    if (!terminalRef.current || !sessionId) return;
 
     // Initialize xterm
     const term = new XTerm({
@@ -45,83 +45,73 @@ export function Terminal({sessionId}: TerminalProps) {
     xtermRef.current = term;
     fitAddonRef.current = fitAddon;
 
-    // Connect to WebSocket if sessionId is provided
-    if (sessionId) {
-      const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
-      const ws = initWebSocket(wsUrl);
+    // Create a new WebSocket instance for this terminal
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
+    const ws = initWebSocket(wsUrl);
+    setWebSocket(ws);
 
-      // Define event handlers
-      const handleOpen = () => {
-        term.writeln('Connected to server');
+    // Define event handlers
+    const handleOpen = () => {
+      term.writeln('Connected to server');
 
-        // Start shell session with terminal size
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ssh/shell`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            sessionId,
-            cols: term.cols,
-            rows: term.rows,
-          }),
+      // Start shell session with terminal size
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ssh/shell`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          sessionId,
+          cols: term.cols,
+          rows: term.rows,
+        }),
+      })
+        .then(res => res.json())
+        .then((data: {success: boolean; error?: string}) => {
+          if (data.success) {
+            term.writeln('Shell session started');
+          } else {
+            term.writeln(`Error: ${data.error}`);
+          }
         })
-          .then(res => res.json())
-          .then((data: {success: boolean; error?: string}) => {
-            if (data.success) {
-              term.writeln('Shell session started');
-            } else {
-              term.writeln(`Error: ${data.error}`);
-            }
-          })
-          .catch((err: Error) => {
-            term.writeln(`Error starting shell: ${err.message}`);
-          });
-      };
+        .catch((err: Error) => {
+          term.writeln(`Error starting shell: ${err.message}`);
+        });
+    };
 
-      const handleMessage = (event: MessageEvent) => {
-        term.write(event.data);
-      };
+    const handleMessage = (event: MessageEvent) => {
+      term.write(event.data);
+    };
 
-      const handleError = () => {
-        term.writeln('\r\nWebSocket error occurred');
-      };
+    const handleError = () => {
+      term.writeln('\r\nWebSocket error occurred');
+    };
 
-      const handleClose = () => {
-        term.writeln('\r\nDisconnected from server');
-      };
+    const handleClose = () => {
+      term.writeln('\r\nDisconnected from server');
+    };
 
-      // Only attach handlers if WebSocket is connecting or just created
-      if (ws.readyState === WebSocket.CONNECTING) {
-        ws.addEventListener('open', handleOpen);
-      } else if (ws.readyState === WebSocket.OPEN) {
-        // Already open, trigger shell session start
-        handleOpen();
+    ws.addEventListener('open', handleOpen);
+    ws.addEventListener('message', handleMessage);
+    ws.addEventListener('error', handleError);
+    ws.addEventListener('close', handleClose);
+
+    // Send terminal input to WebSocket
+    const dataDisposable = term.onData(data => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(data);
       }
+    });
 
-      ws.addEventListener('message', handleMessage);
-      ws.addEventListener('error', handleError);
-      ws.addEventListener('close', handleClose);
-
-      // Send terminal input to WebSocket
-      const dataDisposable = term.onData(data => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(data);
-        }
-      });
-
-      // Cleanup
-      return () => {
-        ws.removeEventListener('open', handleOpen);
-        ws.removeEventListener('message', handleMessage);
-        ws.removeEventListener('error', handleError);
-        ws.removeEventListener('close', handleClose);
-        dataDisposable.dispose();
-        closeWebSocket();
-        term.dispose();
-      };
-    }
-
-    // Cleanup when no sessionId
+    // Cleanup
     return () => {
+      ws.removeEventListener('open', handleOpen);
+      ws.removeEventListener('message', handleMessage);
+      ws.removeEventListener('error', handleError);
+      ws.removeEventListener('close', handleClose);
+      dataDisposable.dispose();
+
+      closeWebSocket();
+      setWebSocket(null);
+
       term.dispose();
     };
   }, [sessionId]);
