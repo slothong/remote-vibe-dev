@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for remote-dev-lingering-flower-5812 on 2026-01-04T18:27:31+09:00
+# fly.toml app configuration file generated for remote-tdd-dev on 2026-01-04T19:46:58+09:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'remote-dev-lingering-flower-5812'
+app = 'remote-tdd-dev'
 primary_region = 'sjc'
 
 [build]
