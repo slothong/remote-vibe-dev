@@ -35,11 +35,25 @@ export async function connectToSSH(
       });
     });
 
+    client.on(
+      'keyboard-interactive',
+      (_name, _instructions, _instructionsLang, prompts, finish) => {
+        if (
+          prompts.length > 0 &&
+          prompts[0].prompt.toLowerCase().includes('password')
+        ) {
+          finish([config.password || '']);
+        } else {
+          finish([]);
+        }
+      },
+    );
+
     const connectionConfig: ConnectConfig = {
       host: config.host,
       port: config.port,
       username: config.username,
-      readyTimeout: 5000,
+      readyTimeout: 20000,
     };
 
     if (config.password) {
