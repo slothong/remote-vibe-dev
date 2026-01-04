@@ -136,5 +136,8 @@ describe('tmux 세션을 시작한다', () => {
     expect(allWrites).toContain('attach-session');
     // 새 세션일 때만 claude 실행 (조건문 내부)
     expect(allWrites).toContain('new-session');
+    // -c 옵션으로 작업 디렉토리 지정
+    expect(allWrites).toContain('-c');
+    expect(allWrites).toContain('remote-dev-workspace');
   });
 });
