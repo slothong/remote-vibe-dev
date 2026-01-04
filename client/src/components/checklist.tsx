@@ -241,11 +241,11 @@ export function Checklist({sessionId}: ChecklistProps) {
   }
 
   return (
-    <div className="space-y-6" data-testid="checklist-container">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+    <div className="space-y-4 sm:space-y-6" data-testid="checklist-container">
+      <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+        <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
           <svg
-            className="w-6 h-6 text-white"
+            className="w-5 h-5 sm:w-6 sm:h-6 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -258,43 +258,47 @@ export function Checklist({sessionId}: ChecklistProps) {
             />
           </svg>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Plan Checklist</h2>
-          <p className="text-sm text-gray-500">Track your development tasks</p>
+        <div className="flex-1 min-w-0">
+          <h2 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">
+            Plan Checklist
+          </h2>
+          <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">
+            Track your development tasks
+          </p>
         </div>
       </div>
 
       {plan.sections.map((section, sectionIndex) => (
         <div
           key={`section-${sectionIndex}-${section.title}`}
-          className="checklist-section bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 shadow-sm border border-gray-200"
+          className="checklist-section bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg sm:rounded-xl p-3 sm:p-5 shadow-sm border border-gray-200"
         >
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></span>
-            {section.title}
+          <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+            <span className="w-1 h-5 sm:h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></span>
+            <span className="flex-1 min-w-0 truncate">{section.title}</span>
           </h3>
 
-          <ul className="checklist-items space-y-2 mb-4">
+          <ul className="checklist-items space-y-2 mb-3 sm:mb-4">
             {section.items.map((item, itemIndex) => (
               <li
                 key={`item-${sectionIndex}-${itemIndex}-${item.text}`}
-                className="checklist-item group bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200"
+                className="checklist-item group bg-white rounded-lg p-2 sm:p-3 border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200"
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-2 sm:gap-3">
                   <input
                     type="checkbox"
                     checked={item.checked}
                     disabled
-                    className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-not-allowed mt-0.5"
+                    className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-not-allowed mt-0.5 flex-shrink-0"
                   />
                   <span
-                    className={`flex-1 text-sm leading-relaxed ${item.checked ? 'checked line-through text-gray-400' : 'text-gray-700 font-medium'}`}
+                    className={`flex-1 text-xs sm:text-sm leading-relaxed break-words ${item.checked ? 'checked line-through text-gray-400' : 'text-gray-700 font-medium'}`}
                   >
                     {item.text}
                   </span>
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
                     <button
-                      className={`go-button p-2 text-xs font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg shadow-sm hover:shadow transition-all ${loadingItems.has(`${sectionIndex}-${itemIndex}`) ? 'loading opacity-50 cursor-not-allowed' : ''}`}
+                      className={`go-button p-1.5 sm:p-2 text-xs font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-md sm:rounded-lg shadow-sm hover:shadow transition-all ${loadingItems.has(`${sectionIndex}-${itemIndex}`) ? 'loading opacity-50 cursor-not-allowed' : ''}`}
                       onClick={() =>
                         void handleGoClick(sectionIndex, itemIndex)
                       }
@@ -305,7 +309,7 @@ export function Checklist({sessionId}: ChecklistProps) {
                     >
                       {loadingItems.has(`${sectionIndex}-${itemIndex}`) ? (
                         <svg
-                          className="w-4 h-4 animate-spin"
+                          className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin"
                           fill="none"
                           viewBox="0 0 24 24"
                         >
@@ -325,7 +329,7 @@ export function Checklist({sessionId}: ChecklistProps) {
                         </svg>
                       ) : (
                         <svg
-                          className="w-4 h-4"
+                          className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -340,14 +344,14 @@ export function Checklist({sessionId}: ChecklistProps) {
                       )}
                     </button>
                     <button
-                      className="delete-button p-2 text-xs font-semibold bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white rounded-lg shadow-sm hover:shadow transition-all"
+                      className="delete-button p-1.5 sm:p-2 text-xs font-semibold bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white rounded-md sm:rounded-lg shadow-sm hover:shadow transition-all"
                       onClick={() => {
                         void handleDeleteClick(section.title, itemIndex);
                       }}
                       title="Delete this task"
                     >
                       <svg
-                        className="w-4 h-4"
+                        className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -366,7 +370,7 @@ export function Checklist({sessionId}: ChecklistProps) {
             ))}
           </ul>
 
-          <div className="add-item-form flex gap-2">
+          <div className="add-item-form flex gap-1.5 sm:gap-2">
             <input
               type="text"
               placeholder="Add new task..."
@@ -382,14 +386,14 @@ export function Checklist({sessionId}: ChecklistProps) {
                   void handleAddItem(section.title);
                 }
               }}
-              className="flex-1 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-3 sm:px-4 py-2 text-xs sm:text-sm border border-gray-300 rounded-md sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <button
               onClick={() => void handleAddItem(section.title)}
-              className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-all duration-200"
+              className="px-3 sm:px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-md sm:rounded-lg shadow-sm hover:shadow transition-all duration-200"
             >
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

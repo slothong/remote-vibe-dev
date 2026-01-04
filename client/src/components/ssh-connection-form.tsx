@@ -84,16 +84,18 @@ export function SSHConnectionForm({
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-          <h2 className="text-3xl font-bold text-white">SSH Connection</h2>
-          <p className="text-blue-100 mt-1">
+    <div className="w-full max-w-md mx-auto">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-8 py-4 sm:py-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">
+            SSH Connection
+          </h2>
+          <p className="text-blue-100 mt-1 text-sm sm:text-base">
             Connect to your remote development server
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-5">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-4 sm:space-y-5">
           <div className="space-y-4">
             <div>
               <label
