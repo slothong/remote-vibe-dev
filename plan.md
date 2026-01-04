@@ -110,7 +110,7 @@
 - [x] 체크리스트의 체크박스는 사용자가 클릭해서 상태 변경할 수 없다.
 - [x] ssh 연결 후 tmux 세션을 시작한다. 세션 이름은 "remote-tdd-dev" 로 한다. 만약 세션이 이미 존재하면 해당 세션에 attach 한다. 세션에 attach 한 후에 claude 명령어를 실행한다.
 - [x] remote-dev-workspace로 이동하는 명령어는 tmux 세션 열기 전에 실행되어야 한다.
-- [ ] tmux 세션이 이미 존재하는 경우, claude 명령어가 중복 실행되지 않도록 한다.
-- [ ] tmux 세션이 없는 경우 remote-dev-workspace로 이동한 후 세션을 생성하고, 세션이 이미 있는 경우에는 이동 없이 세션에 attach 한다.
+- [x] tmux 세션이 이미 존재하는 경우, claude 명령어가 중복 실행되지 않도록 한다.
+- [x] tmux 세션이 없는 경우 remote-dev-workspace로 이동한 후 세션을 생성하고, 세션이 이미 있는 경우에는 이동 없이 세션에 attach 한다.
 - [x] go 명령어를 전송한 뒤 해당 항목은 disabled이고 go 버튼은 로딩중으로 표시한다.
 

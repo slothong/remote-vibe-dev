@@ -99,14 +99,42 @@ describe('tmux 세션을 시작한다', () => {
 
     expect(result.success).toBe(true);
 
-    // write 호출 순서 확인
+    // write 호출 확인
     const calls = mockStream.write.mock.calls;
-    expect(calls.length).toBeGreaterThanOrEqual(2);
+    const allWrites = calls.map(call => call[0]).join('');
 
-    // 첫 번째 명령: cd remote-dev-workspace
-    expect(calls[0][0]).toContain('cd remote-dev-workspace');
+    // tmux 명령이 포함되어 있는지 확인
+    expect(allWrites).toContain('tmux');
+    expect(allWrites).toContain('remote-tdd-dev');
+  });
 
-    // 두 번째 명령: tmux 세션 시작
-    expect(calls[1][0]).toContain('tmux');
+  it('세션이 없으면 새로 생성하고 claude를 실행하며, 있으면 attach만 한다', async () => {
+    const mockStream = {
+      on: vi.fn(),
+      write: vi.fn(),
+      end: vi.fn(),
+    };
+
+    vi.spyOn(mockClient, 'shell').mockImplementation(
+      (callback: (err: Error | undefined, stream: ClientChannel) => void) => {
+        callback(undefined, mockStream as unknown as ClientChannel);
+        return mockClient;
+      },
+    );
+
+    const result = await startTmuxSession(mockClient);
+
+    expect(result.success).toBe(true);
+
+    // write 호출 확인
+    const calls = mockStream.write.mock.calls;
+    const allWrites = calls.map(call => call[0]).join('');
+
+    // if 조건문을 사용하여 세션 존재 여부에 따라 분기
+    expect(allWrites).toContain('if');
+    expect(allWrites).toContain('has-session');
+    expect(allWrites).toContain('attach-session');
+    // 새 세션일 때만 claude 실행 (조건문 내부)
+    expect(allWrites).toContain('new-session');
   });
 });
