@@ -1,12 +1,12 @@
 import {test, expect} from '@playwright/test';
 import {connectToSSH} from '../helpers/connect';
 
-test.describe('Checklist Component', () => {
+test.describe('체크리스트 컴포넌트', () => {
   test.beforeEach(async ({page}) => {
     await connectToSSH(page);
   });
 
-  test('should render checklist component with sections', async ({page}) => {
+  test('섹션과 함께 체크리스트 컴포넌트를 렌더링해야 함', async ({page}) => {
     // 체크리스트 컴포넌트가 표시되는지 확인
     const checklist = page.locator('[data-testid="checklist-container"]');
     await expect(checklist).toBeVisible();
@@ -21,7 +21,7 @@ test.describe('Checklist Component', () => {
     await expect(page.getByText('Test Section 2')).toBeVisible();
   });
 
-  test('should display checklist items with correct status', async ({
+  test('올바른 상태로 체크리스트 항목을 표시해야 함', async ({
     page,
   }) => {
     // 체크박스 항목들이 표시되는지 확인
@@ -50,7 +50,7 @@ test.describe('Checklist Component', () => {
     await expect(task3Checkbox).not.toBeChecked();
   });
 
-  test('should not allow checkbox toggling (disabled state)', async ({
+  test('체크박스 토글을 허용하지 않아야 함 (disabled 상태)', async ({
     page,
   }) => {
     // 대기
@@ -77,7 +77,7 @@ test.describe('Checklist Component', () => {
     expect(afterClickChecked).toBe(initialChecked);
   });
 
-  test('should add new checklist item', async ({page}) => {
+  test('새 체크리스트 항목을 추가해야 함', async ({page}) => {
     await page.waitForTimeout(2000);
 
     const section1 = page
@@ -98,7 +98,7 @@ test.describe('Checklist Component', () => {
     });
   });
 
-  test('should delete checklist item', async ({page}) => {
+  test('체크리스트 항목을 삭제해야 함', async ({page}) => {
     await page.waitForTimeout(2000);
 
     const section1 = page
@@ -125,7 +125,7 @@ test.describe('Checklist Component', () => {
     }
   });
 
-  test('should display Go button for each item', async ({page}) => {
+  test('각 항목에 대해 Go 버튼을 표시해야 함', async ({page}) => {
     await page.waitForTimeout(2000);
 
     const section1 = page
@@ -139,7 +139,7 @@ test.describe('Checklist Component', () => {
     await expect(goButton).toHaveAttribute('title', 'Execute this task');
   });
 
-  test('should execute claude /go command when Go button is clicked', async ({
+  test('Go 버튼 클릭 시 claude /go 명령을 실행해야 함', async ({
     page,
   }) => {
     await page.waitForTimeout(3000);
@@ -167,7 +167,7 @@ test.describe('Checklist Component', () => {
     expect(terminalText).toBeTruthy();
   });
 
-  test('should reflect plan.md changes in checklist', async ({page}) => {
+  test('plan.md 변경사항을 체크리스트에 반영해야 함', async ({page}) => {
     await page.waitForTimeout(2000);
 
     const section1 = page

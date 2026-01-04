@@ -1,7 +1,7 @@
 import {test, expect} from '@playwright/test';
 
-test.describe('SSH Connection Flow', () => {
-  test('should display connection form on initial load', async ({page}) => {
+test.describe('SSH 연결 플로우', () => {
+  test('초기 로드 시 연결 폼을 표시해야 함', async ({page}) => {
     await page.goto('/');
 
     // 연결 폼이 표시되는지 확인
@@ -13,7 +13,7 @@ test.describe('SSH Connection Flow', () => {
     await expect(page.getByRole('button', {name: /connect/i})).toBeVisible();
   });
 
-  test('should successfully connect to SSH server and show main UI', async ({
+  test('SSH 서버에 성공적으로 연결하고 메인 UI를 표시해야 함', async ({
     page,
   }) => {
     await page.goto('/');
@@ -47,7 +47,7 @@ test.describe('SSH Connection Flow', () => {
     ).toBeVisible();
   });
 
-  test('should display error message on invalid credentials', async ({
+  test('잘못된 인증 정보에 대해 에러 메시지를 표시해야 함', async ({
     page,
   }) => {
     await page.goto('/');
@@ -68,7 +68,7 @@ test.describe('SSH Connection Flow', () => {
     await expect(page.getByText('SSH Connection')).toBeVisible();
   });
 
-  test('should display error message on connection timeout', async ({
+  test('연결 타임아웃 시 에러 메시지를 표시해야 함', async ({
     page,
   }) => {
     await page.goto('/');

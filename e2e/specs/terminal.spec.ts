@@ -1,12 +1,12 @@
 import {test, expect} from '@playwright/test';
 import {connectToSSH} from '../helpers/connect';
 
-test.describe('Terminal Component', () => {
+test.describe('터미널 컴포넌트', () => {
   test.beforeEach(async ({page}) => {
     await connectToSSH(page);
   });
 
-  test('should render terminal component', async ({page}) => {
+  test('터미널 컴포넌트를 렌더링해야 함', async ({page}) => {
     // 터미널 컴포넌트가 표시되는지 확인
     const terminal = page.locator('[data-testid="terminal-container"]');
     await expect(terminal).toBeVisible();
@@ -19,7 +19,7 @@ test.describe('Terminal Component', () => {
     expect(terminalContent).toContain('Connected to server');
   });
 
-  test('should display connection message', async ({page}) => {
+  test('연결 메시지를 표시해야 함', async ({page}) => {
     // 터미널이 초기화될 때까지 대기
     await page.waitForTimeout(2000);
 
@@ -30,7 +30,7 @@ test.describe('Terminal Component', () => {
     expect(terminalContent).toContain('Connected to server');
   });
 
-  test('should start shell session automatically', async ({page}) => {
+  test('자동으로 셸 세션을 시작해야 함', async ({page}) => {
     await page.waitForTimeout(2000);
 
     const terminal = page.locator('[data-testid="terminal-container"]');
@@ -40,7 +40,7 @@ test.describe('Terminal Component', () => {
     expect(terminalContent).toContain('Shell session started');
   });
 
-  test('should execute claude command automatically', async ({page}) => {
+  test('자동으로 claude 명령을 실행해야 함', async ({page}) => {
     // 자동 명령 실행 대기
     await page.waitForTimeout(4000);
 
@@ -55,12 +55,12 @@ test.describe('Terminal Component', () => {
   });
 });
 
-test.describe('WebSocket Communication', () => {
+test.describe('WebSocket 통신', () => {
   test.beforeEach(async ({page}) => {
     await connectToSSH(page);
   });
 
-  test('should establish WebSocket connection', async ({page}) => {
+  test('WebSocket 연결을 수립해야 함', async ({page}) => {
     // WebSocket 연결 확인을 위한 대기
     await page.waitForTimeout(2000);
 
@@ -72,7 +72,7 @@ test.describe('WebSocket Communication', () => {
     expect(terminalContent).toContain('Connected to server');
   });
 
-  test('should receive messages from SSH via WebSocket', async ({page}) => {
+  test('WebSocket을 통해 SSH로부터 메시지를 수신해야 함', async ({page}) => {
     // 초기 메시지 수신 대기
     await page.waitForTimeout(3000);
 
@@ -84,7 +84,7 @@ test.describe('WebSocket Communication', () => {
     expect(terminalContent!.length).toBeGreaterThan(0);
   });
 
-  test('should maintain WebSocket connection during page lifecycle', async ({
+  test('페이지 생명주기 동안 WebSocket 연결을 유지해야 함', async ({
     page,
   }) => {
     await page.waitForTimeout(2000);

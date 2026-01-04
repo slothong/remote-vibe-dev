@@ -1,8 +1,8 @@
 import {test, expect} from '@playwright/test';
 import {connectToSSH} from '../helpers/connect';
 
-test.describe('Integration Tests', () => {
-  test('should complete full workflow: connect -> view components -> add item', async ({
+test.describe('통합 테스트', () => {
+  test('전체 워크플로우 완료: 연결 -> 컴포넌트 보기 -> 항목 추가', async ({
     page,
   }) => {
     // 1. SSH 연결
@@ -39,7 +39,7 @@ test.describe('Integration Tests', () => {
     });
   });
 
-  test('should display both checklist and terminal simultaneously', async ({
+  test('체크리스트와 터미널을 동시에 표시해야 함', async ({
     page,
   }) => {
     await connectToSSH(page);
@@ -58,7 +58,7 @@ test.describe('Integration Tests', () => {
     await expect(page.getByText('SSH Remote Development')).toBeVisible();
   });
 
-  test('should reflect checklist changes in plan.md', async ({page}) => {
+  test('체크리스트 변경사항이 plan.md에 반영되어야 함', async ({page}) => {
     await connectToSSH(page);
 
     await page.waitForTimeout(2000);
@@ -92,7 +92,7 @@ test.describe('Integration Tests', () => {
     await expect(newTaskCheckbox).toBeChecked();
   });
 
-  test('should handle errors gracefully', async ({page}) => {
+  test('에러를 우아하게 처리해야 함', async ({page}) => {
     await page.goto('/');
 
     // 잘못된 호스트로 연결 시도
@@ -112,7 +112,7 @@ test.describe('Integration Tests', () => {
     await expect(page.getByText('SSH Connection')).toBeVisible();
   });
 
-  test('should show terminal output from SSH server', async ({page}) => {
+  test('SSH 서버로부터 터미널 출력을 표시해야 함', async ({page}) => {
     await connectToSSH(page);
 
     const terminal = page.locator('[data-testid="terminal-container"]');
@@ -128,7 +128,7 @@ test.describe('Integration Tests', () => {
     expect(terminalContent).toContain('Shell session started');
   });
 
-  test('should support concurrent checklist and terminal operations', async ({
+  test('체크리스트와 터미널 동시 작업을 지원해야 함', async ({
     page,
   }) => {
     await connectToSSH(page);
