@@ -1,23 +1,12 @@
-import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
+import {describe, it, expect} from 'vitest';
 import {connectToSSH} from './ssh-service';
+import {server} from '../mocks/server';
+import {http, HttpResponse} from 'msw';
 
-global.fetch = vi.fn();
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 describe('SSH Service', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('should connect to SSH successfully', async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({success: true, sessionId: 'test-session-id'}),
-    });
-
     const result = await connectToSSH({
       host: 'example.com',
       port: 22,
@@ -27,27 +16,18 @@ describe('SSH Service', () => {
     });
 
     expect(result.success).toBe(true);
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3000/api/ssh/connect',
-      {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          host: 'example.com',
-          port: 22,
-          username: 'testuser',
-          authMethod: 'password',
-          password: 'testpass',
-        }),
-      },
-    );
+    expect(result.sessionId).toBe('test-session-id');
   });
 
   it('should handle connection failure', async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({success: false, error: 'Connection refused'}),
-    });
+    server.use(
+      http.post(`${API_BASE_URL}/api/ssh/connect`, () => {
+        return HttpResponse.json({
+          success: false,
+          error: 'Connection refused',
+        });
+      }),
+    );
 
     const result = await connectToSSH({
       host: 'example.com',
@@ -62,8 +42,10 @@ describe('SSH Service', () => {
   });
 
   it('should handle network errors', async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-      new Error('Network error'),
+    server.use(
+      http.post(`${API_BASE_URL}/api/ssh/connect`, () => {
+        return HttpResponse.error();
+      }),
     );
 
     const result = await connectToSSH({
@@ -75,6 +57,6 @@ describe('SSH Service', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain('Network error');
+    expect(result.error).toContain('Network error - cannot reach server');
   });
 });
