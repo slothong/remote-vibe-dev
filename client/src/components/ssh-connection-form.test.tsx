@@ -67,7 +67,9 @@ describe('password 입력 필드를 표시한다', () => {
     const user = userEvent.setup();
     render(<SSHConnectionForm />);
 
-    const keyRadio = screen.getByRole('radio', {name: /ssh key authentication/i});
+    const keyRadio = screen.getByRole('radio', {
+      name: /ssh key authentication/i,
+    });
     await user.click(keyRadio);
 
     const passwordInput = screen.queryByLabelText(/^password$/i, {
@@ -91,7 +93,9 @@ describe('SSH key 파일 선택 기능을 표시한다', () => {
     const user = userEvent.setup();
     render(<SSHConnectionForm />);
 
-    const keyRadio = screen.getByRole('radio', {name: /ssh key authentication/i});
+    const keyRadio = screen.getByRole('radio', {
+      name: /ssh key authentication/i,
+    });
     await user.click(keyRadio);
 
     const keyFileInput = screen.getByLabelText(/private key file/i, {
@@ -105,7 +109,9 @@ describe('SSH key 파일 선택 기능을 표시한다', () => {
     const user = userEvent.setup();
     render(<SSHConnectionForm />);
 
-    const keyRadio = screen.getByRole('radio', {name: /ssh key authentication/i});
+    const keyRadio = screen.getByRole('radio', {
+      name: /ssh key authentication/i,
+    });
     await user.click(keyRadio);
 
     expect(
