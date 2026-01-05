@@ -8,9 +8,12 @@ vi.mock('@xterm/xterm', () => {
     Terminal: class {
       open = vi.fn();
       write = vi.fn();
-      onData = vi.fn();
+      writeln = vi.fn();
+      onData = vi.fn(() => ({dispose: vi.fn()}));
       dispose = vi.fn();
       loadAddon = vi.fn();
+      cols = 80;
+      rows = 24;
     },
   };
 });
@@ -49,5 +52,18 @@ describe('터미널을 화면 하단에 배치한다', () => {
 
     const terminalContainer = screen.getByTestId('terminal-container');
     expect(terminalContainer).toHaveClass('w-full', 'h-full');
+  });
+});
+
+describe('모바일 터미널 키보드', () => {
+  it('모바일 키보드 컴포넌트를 렌더링한다', () => {
+    render(<Terminal sessionId="test-session" />);
+
+    expect(screen.getByLabelText('Up')).toBeInTheDocument();
+    expect(screen.getByLabelText('Down')).toBeInTheDocument();
+    expect(screen.getByLabelText('Left')).toBeInTheDocument();
+    expect(screen.getByLabelText('Right')).toBeInTheDocument();
+    expect(screen.getByLabelText('ESC')).toBeInTheDocument();
+    expect(screen.getByLabelText('Enter')).toBeInTheDocument();
   });
 });

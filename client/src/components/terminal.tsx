@@ -4,6 +4,7 @@ import {FitAddon} from '@xterm/addon-fit';
 import {Unicode11Addon} from '@xterm/addon-unicode11';
 import '@xterm/xterm/css/xterm.css';
 import {initWebSocket, setWebSocket, closeWebSocket} from '../services/websocket-manager';
+import {MobileTerminalKeyboard} from './mobile-terminal-keyboard';
 
 interface TerminalProps {
   sessionId?: string;
@@ -13,6 +14,7 @@ export function Terminal({sessionId}: TerminalProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     if (!terminalRef.current || !sessionId) return;
@@ -54,6 +56,7 @@ export function Terminal({sessionId}: TerminalProps) {
     const wsUrlWithSession = `${wsUrl}?sessionId=${sessionId}`;
     const ws = initWebSocket(wsUrlWithSession);
     setWebSocket(ws);
+    wsRef.current = ws;
 
     // Define event handlers
     const handleOpen = () => {
@@ -121,6 +124,12 @@ export function Terminal({sessionId}: TerminalProps) {
     };
   }, [sessionId]);
 
+  const handleKeyPress = (key: string) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(key);
+    }
+  };
+
   return (
     <div
       data-testid="terminal-container"
@@ -136,6 +145,7 @@ export function Terminal({sessionId}: TerminalProps) {
           <span className="text-sm font-medium text-gray-300">Terminal</span>
         </div>
       </div>
+      <MobileTerminalKeyboard onKeyPress={handleKeyPress} />
       <div ref={terminalRef} className="w-full h-full p-2 overflow-auto touch-pan-y" />
     </div>
   );
