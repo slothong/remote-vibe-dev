@@ -49,9 +49,10 @@ export function Terminal({sessionId}: TerminalProps) {
     xtermRef.current = term;
     fitAddonRef.current = fitAddon;
 
-    // Create a new WebSocket instance for this terminal
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
-    const ws = initWebSocket(wsUrl);
+    // Create a new WebSocket instance for this terminal with sessionId
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3000';
+    const wsUrlWithSession = `${wsUrl}?sessionId=${sessionId}`;
+    const ws = initWebSocket(wsUrlWithSession);
     setWebSocket(ws);
 
     // Define event handlers
@@ -135,7 +136,7 @@ export function Terminal({sessionId}: TerminalProps) {
           <span className="text-sm font-medium text-gray-300">Terminal</span>
         </div>
       </div>
-      <div ref={terminalRef} className="w-full h-full p-2" />
+      <div ref={terminalRef} className="w-full h-full p-2 overflow-auto touch-pan-y" />
     </div>
   );
 }

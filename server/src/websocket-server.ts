@@ -42,7 +42,14 @@ export class WebSocketBridge {
   private setupConnectionHandlers(): void {
     if (!this.wss) return;
 
-    this.wss.on('connection', (ws: WebSocket) => {
+    this.wss.on('connection', (ws: WebSocket, req) => {
+      // Extract sessionId from query parameters
+      const url = new URL(req.url || '', 'ws://localhost');
+      const sessionId = url.searchParams.get('sessionId');
+
+      // Store sessionId in WebSocket object
+      (ws as any).sessionId = sessionId;
+
       this.connectionHandlers.forEach(handler => handler());
 
       ws.on('message', (data: Buffer) => {
